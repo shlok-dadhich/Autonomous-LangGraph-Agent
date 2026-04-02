@@ -1,0 +1,77 @@
+{
+    "topics":  [
+                   "Large Language Models",
+                   "Autonomous Agents",
+                   "Multi-Agent Systems",
+                   "Retrieval Augmented Generation",
+                   "Fine-tuning and Adaptation",
+                   "AI Safety and Alignment"
+               ],
+    "keywords":  [
+                     "LLM",
+                     "agent",
+                     "reasoning",
+                     "planning",
+                     "RAG",
+                     "fine-tuning",
+                     "prompt engineering",
+                     "transformers",
+                     "neural networks",
+                     "machine learning",
+                     "AI",
+                     "Python",
+                     "framework"
+                 ],
+    "sources":  {
+                    "arxiv":  {
+                                  "enabled":  true,
+                                  "categories":  [
+                                                     "cs.AI",
+                                                     "cs.LG"
+                                                 ],
+                                  "days_back":  7,
+                                  "max_results":  20
+                              },
+                    "tavily":  {
+                                   "enabled":  true,
+                                   "max_results":  10
+                               },
+                    "reddit":  {
+                                   "enabled":  true,
+                                   "subreddits":  [
+                                                      "MachineLearning",
+                                                      "LocalLLaMA"
+                                                  ],
+                                   "time_filter":  "week",
+                                   "max_results":  15
+                               },
+                    "hackernews":  {
+                                       "enabled":  true,
+                                       "max_results":  20,
+                                       "min_score":  50
+                                   },
+                    "huggingface":  {
+                                        "limit":  5,
+                                        "enabled":  true
+                                    },
+                    "rss":  {
+                                      "enabled":  true,
+                                      "feeds":  [
+                                                     {
+                                                         "name":  "anthropic_news",
+                                                         "url":  "https://www.anthropic.com/news",
+                                                         "source":  "anthropic-newsroom",
+                                                         "parser":  "html",
+                                                         "limit":  5
+                                                     },
+                                                     {
+                                                         "name":  "huggingface_blog",
+                                                         "url":  "https://huggingface.co/blog/feed.xml",
+                                                         "source":  "huggingface-blog",
+                                                         "parser":  "rss",
+                                                         "limit":  5
+                                                     }
+                                                 ]
+                                    }
+                }
+}

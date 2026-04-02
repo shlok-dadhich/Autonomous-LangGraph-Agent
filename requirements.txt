@@ -1,0 +1,13 @@
+# Core dependencies ONLY for Phase 1
+langgraph
+langgraph-checkpoint-sqlite
+loguru
+python-dotenv
+feedparser
+tavily-python
+requests
+sentence-transformers
+groq
+jinja2
+apscheduler
+pytest

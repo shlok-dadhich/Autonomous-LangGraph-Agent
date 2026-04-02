@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>AI Weekly Intelligence</title>
+		<style>
+			@media only screen and (max-width: 640px) {
+				.wrapper-pad { padding: 14px 8px !important; }
+				.container { border-radius: 16px !important; }
+				.hero { padding: 22px 18px 16px 18px !important; }
+				.hero-title { font-size: 24px !important; line-height: 1.18 !important; }
+				.section-pad { padding: 14px 12px 6px 12px !important; }
+				.card-pad { padding: 16px 14px !important; }
+				.card-title { font-size: 17px !important; line-height: 1.35 !important; }
+				.stats-text { font-size: 12px !important; line-height: 1.6 !important; }
+				.footer-pad { padding: 14px 16px 20px 16px !important; }
+				.button-cell { display: block !important; width: 100% !important; }
+				.button-link { display: block !important; width: 100% !important; }
+			}
+		</style>
+	</head>
+	<body style="margin:0;padding:0;background-color:#121212;color:#f3f4f6;font-family:Inter,Segoe UI,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;">
+		<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color:#121212;background-image:radial-gradient(circle at top,#1f2937 0,#121212 55%);padding:28px 12px;" class="wrapper-pad">
+			<tr>
+				<td align="center">
+					<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="max-width:680px;background-color:#171717;border:1px solid #2a2a2a;border-radius:22px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.45);" class="container">
+						<tr>
+							<td style="padding:28px 26px 18px 26px;background:linear-gradient(135deg,#1a1a1a 0%,#111827 100%);border-bottom:1px solid #2d2d2d;" class="hero">
+								<div style="font-size:11px;letter-spacing:0.22em;text-transform:uppercase;color:#93c5fd;font-weight:800;">Technical Briefing</div>
+								<div style="margin-top:10px;font-size:30px;line-height:1.12;color:#fafafa;font-weight:900;" class="hero-title">{{ newsletter_title|default('AI Weekly Intelligence') }}</div>
+								<div style="margin-top:10px;font-size:13px;line-height:1.6;color:#cbd5e1;">{{ current_date }}</div>
+
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top:18px;border-collapse:separate;">
+									<tr>
+										<td style="background-color:#0f172a;border:1px solid #334155;border-radius:14px;padding:12px 14px;">
+											<div style="font-size:12px;letter-spacing:0.12em;text-transform:uppercase;color:#94a3b8;font-weight:800;margin-bottom:6px;">Quick Stats</div>
+											<div style="font-size:14px;line-height:1.7;color:#e2e8f0;font-weight:700;" class="stats-text">
+												Total Sources: {{ total_sources|default(sources_used|length) }}
+												<span style="color:#64748b;padding:0 8px;">|</span>
+												Top Topic: {{ top_topic|default('RAG') }}
+												<span style="color:#64748b;padding:0 8px;">|</span>
+												Build: {{ build_label|default(current_date) }}
+											</div>
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 18px 8px 18px;" class="section-pad">
+								{% for article in articles %}
+								{% set source_name = article.source|default('unknown')|lower %}
+								{% if 'arxiv' in source_name %}
+									{% set badge_bg = '#3f1d1d' %}
+									{% set badge_border = '#ef4444' %}
+									{% set badge_text = '#fecaca' %}
+								{% elif 'anthropic' in source_name %}
+									{% set badge_bg = '#10303a' %}
+									{% set badge_border = '#14b8a6' %}
+									{% set badge_text = '#99f6e4' %}
+								{% elif 'huggingface' in source_name or 'hf' in source_name %}
+									{% set badge_bg = '#3a2d09' %}
+									{% set badge_border = '#eab308' %}
+									{% set badge_text = '#fde68a' %}
+								{% elif 'tavily' in source_name %}
+									{% set badge_bg = '#102844' %}
+									{% set badge_border = '#3b82f6' %}
+									{% set badge_text = '#bfdbfe' %}
+								{% elif 'hn' in source_name or 'hackernews' in source_name %}
+									{% set badge_bg = '#3a2208' %}
+									{% set badge_border = '#f97316' %}
+									{% set badge_text = '#fed7aa' %}
+								{% else %}
+									{% set badge_bg = '#243041' %}
+									{% set badge_border = '#64748b' %}
+									{% set badge_text = '#e2e8f0' %}
+								{% endif %}
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 16px 0;border:1px solid #343434;border-radius:18px;background-color:#1a1a1a;overflow:hidden;">
+									<tr>
+										<td style="padding:20px 18px 18px 18px;" class="card-pad">
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+												<tr>
+													<td style="padding:0 0 12px 0;">
+														<span style="display:inline-block;padding:5px 11px;border-radius:999px;background-color:{{ badge_bg }};border:1px solid {{ badge_border }};font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:{{ badge_text }};font-weight:800;">{{ article.source|default('unknown') }}</span>
+													</td>
+												</tr>
+											</table>
+
+											<div style="font-size:20px;line-height:1.3;color:#f8fafc;font-weight:900;margin:0 0 10px 0;" class="card-title">{{ article.title }}</div>
+
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:0 0 14px 0;">
+												<tr>
+													<td style="padding:0;">
+														{% if article.summary_lines %}
+															{% for line in article.summary_lines %}
+															{% if line %}
+															<div style="margin:0 0 6px 0;font-size:14px;line-height:1.7;color:#dbe4f0;">{{ line }}</div>
+															{% endif %}
+															{% endfor %}
+														{% elif article.summary %}
+															{% for line in article.summary.split('\n') %}
+															{% if line %}
+															<div style="margin:0 0 6px 0;font-size:14px;line-height:1.7;color:#dbe4f0;">{{ line }}</div>
+															{% endif %}
+															{% endfor %}
+														{% endif %}
+													</td>
+												</tr>
+											</table>
+
+											<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin:14px 0 16px 0;background-color:#1e293b;border-left:6px solid #60a5fa;border-radius:12px;">
+												<tr>
+													<td style="padding:14px 16px;">
+														<div style="font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:#cbd5e1;font-weight:800;margin-bottom:6px;">Why It Matters</div>
+														<div style="font-size:14px;line-height:1.7;color:#f8fafc;font-weight:600;">{{ article.personalized_insight }}</div>
+													</td>
+												</tr>
+											</table>
+
+											<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin-top:6px;">
+												<tr>
+													<td class="button-cell" style="border-radius:12px;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);">
+														<a href="{{ article.tracked_url or article.url }}" target="_blank" rel="noopener noreferrer" class="button-link" style="display:inline-block;padding:12px 18px;font-size:14px;font-weight:800;color:#ffffff;text-decoration:none;letter-spacing:0.02em;">
+															Read Full Paper →
+														</a>
+													</td>
+												</tr>
+											</table>
+										</td>
+									</tr>
+								</table>
+								{% endfor %}
+							</td>
+						</tr>
+
+						<tr>
+							<td style="padding:18px 24px 24px 24px;border-top:1px solid #2a2a2a;background-color:#131313;" class="footer-pad">
+								<table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+									<tr>
+										<td style="padding:0 0 8px 0;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:#93c5fd;font-weight:800;">Sources Used</td>
+									</tr>
+									<tr>
+										<td style="font-size:13px;line-height:1.7;color:#cbd5e1;">
+											{% if sources_used %}
+												{{ sources_used|join(' • ') }}
+											{% else %}
+												No source metadata available.
+											{% endif %}
+										</td>
+									</tr>
+									<tr>
+										<td style="padding-top:14px;font-size:12px;line-height:1.7;color:#94a3b8;">
+											<a href="{{ feedback_url|default('mailto:newsletter-feedback@example.com?subject=AI%20Weekly%20Intelligence%20Feedback') }}" target="_blank" rel="noopener noreferrer" style="color:#93c5fd;text-decoration:none;font-weight:700;">Feedback</a>
+											<span style="padding:0 8px;color:#475569;">|</span>
+											Managed by {{ managed_by|default('GitHub Copilot') }}
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

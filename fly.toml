@@ -1,0 +1,20 @@
+app = "newsletter-agent"
+primary_region = "bom"
+
+[build]
+
+[processes]
+worker = "python main.py"
+
+[mounts]
+source = "agent_data"
+destination = "/data"
+processes = ["worker"]
+
+[vm]
+cpu_kind = "shared"
+cpus = 1
+memory = "512mb"
+
+[experimental]
+auto_rollback = true
