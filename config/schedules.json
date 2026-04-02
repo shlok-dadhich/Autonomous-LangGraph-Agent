@@ -1,0 +1,14 @@
+{
+  "schedules": [
+    {
+      "id": "tech_ai_every_2_days",
+      "profile_path": "config/profile.json",
+      "interval_days": 2
+    },
+    {
+      "id": "news_every_5_days",
+      "profile_path": "config/profile_news.json",
+      "interval_days": 5
+    }
+  ]
+}

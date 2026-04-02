@@ -69,6 +69,22 @@ def load_profile(profile_path: str = "config/profile.json") -> dict:
     return profile
 
 
+def load_schedules(config_path: str = "config/schedules.json") -> list[dict[str, Any]]:
+    """Load optional schedule definitions for multi-profile automation."""
+    schedule_file = Path(config_path)
+    if not schedule_file.exists():
+        logger.info(f"No schedule config found at {config_path}; using default weekly schedule.")
+        return []
+
+    with open(schedule_file, "r", encoding="utf-8") as schedule_handle:
+        payload = json.load(schedule_handle)
+
+    schedules = payload.get("schedules", []) if isinstance(payload, dict) else []
+    valid_schedules = [item for item in schedules if isinstance(item, dict)]
+    logger.info(f"Loaded {len(valid_schedules)} schedules from {config_path}")
+    return valid_schedules
+
+
 def run_research_phase(profile: dict, thread_id: str) -> dict:
     """Execute the full LangGraph pipeline once."""
     logger.info("=" * 80)
@@ -79,6 +95,9 @@ def run_research_phase(profile: dict, thread_id: str) -> dict:
 
     initial_state = {
         "interest_profile": profile,
+        "profile": profile,
+        "mode": str(profile.get("mode", profile.get("content_mode", "ai_research"))),
+        "trusted_domains": list(profile.get("trusted_domains", [])),
         "raw_articles": [],
         "unique_articles": [],
         "filtered_articles": [],
@@ -146,15 +165,17 @@ def summarize_run(final_state: dict, elapsed_seconds: float) -> bool:
     return True
 
 
-def run_pipeline_once() -> None:
+def run_pipeline_once(profile_path: str | None = None) -> None:
     """Run one full newsletter cycle, raising on fatal failures."""
     alert_service = AlertService()
-    thread_id = f"ai-weekly-{datetime.now().strftime('%Y-%U')}"
     final_error_alert_sent = False
+    resolved_profile_path = profile_path or os.getenv("NEWSLETTER_PROFILE_PATH", "config/profile.json")
+    profile_slug = Path(resolved_profile_path).stem.replace(" ", "-").lower()
+    thread_id = f"{profile_slug}-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
 
     start_time = time.perf_counter()
     try:
-        profile = load_profile()
+        profile = load_profile(resolved_profile_path)
         final_state = run_research_phase(profile, thread_id=thread_id)
         success = summarize_run(final_state, time.perf_counter() - start_time)
         final_error = final_state.get("error")
@@ -280,10 +301,13 @@ def main() -> int:
 
         register_signal_handlers()
         timezone = os.getenv("NEWSLETTER_TIMEZONE", "UTC")
+        schedules_path = os.getenv("NEWSLETTER_SCHEDULES_PATH", "config/schedules.json")
+        job_schedules = load_schedules(schedules_path)
         _ACTIVE_SCHEDULER = WorkerScheduler(
             job_func=run_pipeline_once,
             housekeeping_func=run_monthly_housekeeping,
             timezone=timezone,
+            job_schedules=job_schedules,
         )
 
         logger.info("Starting persistent scheduler loop...")

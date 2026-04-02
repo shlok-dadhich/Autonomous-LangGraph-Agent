@@ -217,3 +217,92 @@ def test_database_connection_uses_wal(tmp_path):
         assert journal_mode.lower() == "wal"
     finally:
         conn.close()
+
+
+def test_general_news_mode_skips_arxiv_and_hf_nodes():
+    from src.graph import nodes
+
+    state = {
+        "profile": {"mode": "general_news", "sources": {}},
+        "interest_profile": {"mode": "general_news", "sources": {}},
+    }
+
+    arxiv_result = nodes.research_arxiv_node(state)
+    hf_result = nodes.research_hf_node(state)
+
+    assert arxiv_result["raw_articles"] == []
+    assert hf_result["raw_articles"] == []
+    assert any("Skipping research_arxiv_node in general_news mode" in log["message"] for log in arxiv_result["logs"])
+    assert any("Skipping research_hf_node in general_news mode" in log["message"] for log in hf_result["logs"])
+
+
+def test_ai_research_mode_skips_rss_node():
+    from src.graph import nodes
+
+    state = {
+        "profile": {"mode": "ai_research", "sources": {"rss": {"enabled": True}}},
+        "interest_profile": {"mode": "ai_research", "sources": {"rss": {"enabled": True}}},
+    }
+
+    rss_result = nodes.research_rss_node(state)
+
+    assert rss_result["raw_articles"] == []
+    assert any("Skipping research_rss_node in ai_research mode" in log["message"] for log in rss_result["logs"])
+
+
+def test_general_news_tavily_domain_guardrail(monkeypatch):
+    from src.graph import nodes
+
+    def fake_tavily(interest_profile, max_results=10):
+        return {
+            "raw_articles": [
+                {
+                    "title": "Trusted Reuters",
+                    "url": "https://www.reuters.com/world/example",
+                    "description": "trusted",
+                    "source": "tavily",
+                },
+                {
+                    "title": "Untrusted Blog",
+                    "url": "https://random-blog.example/post",
+                    "description": "untrusted",
+                    "source": "tavily",
+                },
+            ],
+            "logs": [],
+        }
+
+    monkeypatch.setattr(nodes, "_fetch_tavily_safe", fake_tavily)
+    monkeypatch.setattr(nodes, "_fetch_social_signals_safe", lambda interest_profile, max_results=15: {"raw_articles": [], "logs": []})
+    monkeypatch.setattr(nodes, "_fetch_hn_safe", lambda interest_profile, min_score=50, max_items=100: {"raw_articles": [], "logs": []})
+
+    state = {
+        "profile": {
+            "mode": "general_news",
+            "trusted_domains": ["reuters.com"],
+            "topics": ["India"],
+            "keywords": ["politics"],
+            "sources": {
+                "tavily": {"enabled": True, "max_results": 10},
+                "reddit": {"enabled": False},
+                "hackernews": {"enabled": False},
+            },
+        },
+        "interest_profile": {
+            "mode": "general_news",
+            "trusted_domains": ["reuters.com"],
+            "topics": ["India"],
+            "keywords": ["politics"],
+            "sources": {
+                "tavily": {"enabled": True, "max_results": 10},
+                "reddit": {"enabled": False},
+                "hackernews": {"enabled": False},
+            },
+        },
+    }
+
+    result = nodes.research_web_node(state)
+    urls = [article.get("url", "") for article in result.get("raw_articles", [])]
+
+    assert len(urls) == 1
+    assert urls[0].startswith("https://www.reuters.com/")

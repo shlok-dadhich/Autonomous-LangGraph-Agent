@@ -199,3 +199,24 @@ def fetch_rss_sources(
         all_articles.extend(items)
 
     return all_articles
+
+
+@safe_execute(source_name="rss_news", max_retries=2)
+def fetch_rss_feeds(
+    feed_urls: Optional[List[str]] = None,
+    limit_per_feed: int = 5,
+) -> List[Dict[str, Any]]:
+    """Fetch a generic list of RSS/Atom feed URLs into canonical schema."""
+    urls = [str(url).strip() for url in (feed_urls or []) if str(url).strip()]
+    if not urls:
+        return []
+
+    all_articles: List[Dict[str, Any]] = []
+    for feed_url in urls:
+        logger.info(f"[rss] Fetching generic news feed {feed_url}")
+        items = _parse_rss_feed(feed_url=feed_url, source_name="rss-news", limit=limit_per_feed)
+        for item in items:
+            item["source"] = "rss-news"
+        all_articles.extend(items)
+
+    return all_articles

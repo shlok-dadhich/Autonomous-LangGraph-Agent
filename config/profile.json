@@ -1,4 +1,6 @@
 {
+    "mode": "ai_research",
+    "trusted_domains": [],
     "topics":  [
                    "Large Language Models",
                    "Autonomous Agents",

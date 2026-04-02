@@ -1,0 +1,123 @@
+{
+  "profile_name": "news_india_international",
+  "mode": "general_news",
+  "topics": [
+    "India News",
+    "Indian Politics",
+    "International Affairs",
+    "Geopolitics",
+    "Public Policy"
+  ],
+  "keywords": [
+    "India",
+    "Lok Sabha",
+    "Rajya Sabha",
+    "policy",
+    "election",
+    "diplomacy",
+    "global conflict",
+    "international relations",
+    "government",
+    "parliament"
+  ],
+  "trusted_domains": [
+    "reuters.com",
+    "apnews.com",
+    "bbc.com",
+    "bbc.co.uk",
+    "bbci.co.uk",
+    "thehindu.com",
+    "indianexpress.com",
+    "aljazeera.com",
+    "economictimes.indiatimes.com",
+    "livemint.com"
+  ],
+  "max_filtered_articles": 8,
+  "sources": {
+    "arxiv": {
+      "enabled": false,
+      "categories": [
+        "cs.AI",
+        "cs.LG"
+      ],
+      "days_back": 7,
+      "max_results": 20
+    },
+    "tavily": {
+      "enabled": false,
+      "max_results": 10
+    },
+    "reddit": {
+      "enabled": false,
+      "subreddits": [
+        "worldnews",
+        "india"
+      ],
+      "time_filter": "week",
+      "max_results": 15
+    },
+    "hackernews": {
+      "enabled": false,
+      "max_results": 20,
+      "min_score": 50
+    },
+    "huggingface": {
+      "limit": 5,
+      "enabled": false
+    },
+    "rss": {
+      "enabled": true,
+      "feeds": [
+        {
+          "name": "reuters_world",
+          "url": "https://feeds.reuters.com/Reuters/worldNews",
+          "source": "reuters-world",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "reuters_top_news",
+          "url": "https://feeds.reuters.com/reuters/topNews",
+          "source": "reuters-top",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "bbc_world",
+          "url": "https://feeds.bbci.co.uk/news/world/rss.xml",
+          "source": "bbc-world",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "bbc_politics",
+          "url": "https://feeds.bbci.co.uk/news/politics/rss.xml",
+          "source": "bbc-politics",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "the_hindu_india",
+          "url": "https://www.thehindu.com/news/national/feeder/default.rss",
+          "source": "the-hindu-india",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "indian_express_india",
+          "url": "https://indianexpress.com/section/india/feed/",
+          "source": "indian-express-india",
+          "parser": "rss",
+          "limit": 8
+        },
+        {
+          "name": "aljazeera_world",
+          "url": "https://www.aljazeera.com/xml/rss/all.xml",
+          "source": "aljazeera-world",
+          "parser": "rss",
+          "limit": 8
+        }
+      ]
+    }
+  }
+}

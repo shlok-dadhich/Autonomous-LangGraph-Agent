@@ -40,11 +40,9 @@ def build_fanout_blueprint():
     - START -> research_web_node
     - START -> research_hf_node
     - START -> research_rss_node
-    - START -> research_rss_node
     - research_arxiv_node -> merge_node
     - research_web_node -> merge_node
     - research_hf_node -> merge_node
-    - research_rss_node -> merge_node
     - research_rss_node -> merge_node
 
     Returns:
@@ -115,6 +113,7 @@ def build_research_graph():
     graph.add_node("research_arxiv_node", research_arxiv_node)
     graph.add_node("research_web_node", research_web_node)
     graph.add_node("research_hf_node", research_hf_node)
+    graph.add_node("research_rss_node", research_rss_node)
     graph.add_node("merge_node", merge_node)
     graph.add_node("deduplicate_node", deduplicate_node)
     graph.add_node("filter_node", filter_node)
@@ -134,6 +133,7 @@ def build_research_graph():
     graph.add_edge(START, "research_arxiv_node")
     graph.add_edge(START, "research_web_node")
     graph.add_edge(START, "research_hf_node")
+    graph.add_edge(START, "research_rss_node")
     
     logger.debug("Edges added: START -> research_arxiv_node, START -> research_web_node, START -> research_hf_node, START -> research_rss_node")
     
@@ -141,6 +141,7 @@ def build_research_graph():
     graph.add_edge("research_arxiv_node", "merge_node")
     graph.add_edge("research_web_node", "merge_node")
     graph.add_edge("research_hf_node", "merge_node")
+    graph.add_edge("research_rss_node", "merge_node")
     
     logger.debug("Edges added: research_arxiv_node -> merge_node, research_web_node -> merge_node, research_hf_node -> merge_node, research_rss_node -> merge_node")
     

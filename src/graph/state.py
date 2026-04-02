@@ -27,6 +27,9 @@ class GraphState(TypedDict):
     """
 
     interest_profile: dict
+    profile: dict
+    mode: str
+    trusted_domains: List[str]
     raw_articles: Annotated[list, operator.add]
     unique_articles: list
     filtered_articles: list

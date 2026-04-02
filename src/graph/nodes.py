@@ -20,7 +20,7 @@ from src.tools.tavily_client import fetch_tavily_results
 from src.tools.social_signal_client import fetch_social_signals
 from src.tools.hn_client import fetch_hn_stories
 from src.tools.hf_client import fetch_hf_daily_papers
-from src.tools.rss_client import fetch_rss_sources
+from src.tools.rss_client import fetch_rss_sources, fetch_rss_feeds
 from src.utils.reliability import safe_execute
 from src.core.database import DatabaseManager
 from src.core.ranker import RelevanceRanker
@@ -150,6 +150,59 @@ def _has_verified_url(article: Dict[str, Any]) -> bool:
 
     parsed = urlparse(url)
     return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
+def _normalize_allowed_domains(domains: list[Any]) -> set[str]:
+    normalized: set[str] = set()
+    for domain in domains:
+        candidate = str(domain).strip().lower()
+        if not candidate:
+            continue
+        if candidate.startswith("http://") or candidate.startswith("https://"):
+            parsed = urlparse(candidate)
+            candidate = parsed.netloc.lower().strip()
+        if candidate.startswith("www."):
+            candidate = candidate[4:]
+        if candidate:
+            normalized.add(candidate)
+    return normalized
+
+
+def _is_url_allowed(url: str, allowed_domains: set[str]) -> bool:
+    if not allowed_domains:
+        return True
+
+    parsed = urlparse(str(url).strip())
+    host = parsed.netloc.lower().strip()
+    if host.startswith("www."):
+        host = host[4:]
+
+    if not host:
+        return False
+
+    return any(host == domain or host.endswith(f".{domain}") for domain in allowed_domains)
+
+
+def _get_profile_from_state(state: GraphState) -> Dict[str, Any]:
+    profile = state.get("profile")
+    if isinstance(profile, dict):
+        return profile
+
+    interest_profile = state.get("interest_profile", {})
+    if isinstance(interest_profile, dict):
+        return interest_profile
+    return {}
+
+
+def _get_mode(state: GraphState) -> str:
+    profile = _get_profile_from_state(state)
+    raw_mode = str(profile.get("mode", profile.get("content_mode", "ai_research"))).strip().lower()
+    return raw_mode or "ai_research"
+
+
+def _get_trusted_domains(state: GraphState) -> set[str]:
+    profile = _get_profile_from_state(state)
+    return _normalize_allowed_domains(profile.get("trusted_domains", []))
 
 
 def _is_diversity_source(source_name: str) -> bool:
@@ -308,6 +361,18 @@ def research_arxiv_node(state: GraphState) -> Dict[str, Any]:
     start_ts = datetime.now().isoformat(timespec="milliseconds")
     start_msg = f"[arxiv] Started Arxiv Search at {start_ts}"
     logger.info(start_msg)
+
+    mode = _get_mode(state)
+    if mode == "general_news":
+        msg = "[arxiv] Skipping research_arxiv_node in general_news mode."
+        logger.info(msg)
+        return {
+            "raw_articles": [],
+            "logs": [
+                {"level": "info", "message": start_msg, "timestamp": start_ts},
+                {"level": "info", "message": msg, "timestamp": datetime.now().isoformat(timespec="milliseconds")},
+            ],
+        }
     
     interest_profile = state.get("interest_profile", {})
     arxiv_cfg = interest_profile.get("sources", {}).get("arxiv", {})
@@ -378,6 +443,8 @@ def research_web_node(state: GraphState) -> Dict[str, Any]:
     logger.info(start_msg)
     
     interest_profile = state.get("interest_profile", {})
+    mode = _get_mode(state)
+    trusted_domains = _get_trusted_domains(state)
     keywords = interest_profile.get("keywords", [])
     sources_cfg = interest_profile.get("sources", {})
     logger.debug(f"Interest profile keywords: {keywords}")
@@ -397,10 +464,30 @@ def research_web_node(state: GraphState) -> Dict[str, Any]:
             "topics": interest_profile.get("topics", []),
             "keywords": keywords,
         }
-        return "tavily", _fetch_tavily_safe(
+        tavily_result = _fetch_tavily_safe(
             interest_profile=guided_profile,
             max_results=tavily_cfg.get("max_results", 10),
         )
+
+        if mode == "general_news":
+            before_count = len(tavily_result.get("raw_articles", []))
+            filtered = [
+                article
+                for article in tavily_result.get("raw_articles", [])
+                if _is_url_allowed(str(article.get("url", "")), trusted_domains)
+            ]
+            tavily_result["raw_articles"] = filtered
+            tavily_result.setdefault("logs", []).append(
+                {
+                    "level": "info",
+                    "message": (
+                        "[tavily] Domain guardrail in general_news mode: "
+                        f"kept {len(filtered)} / {before_count} trusted-domain items."
+                    ),
+                }
+            )
+
+        return "tavily", tavily_result
 
     def _run_social_signals() -> tuple[str, Dict[str, Any]]:
         if social_signals_cfg.get("enabled", True) is False:
@@ -480,6 +567,18 @@ def research_hf_node(state: GraphState) -> Dict[str, Any]:
     start_msg = f"[huggingface] Started HF Daily Papers fetch at {start_ts}"
     logger.info(start_msg)
 
+    mode = _get_mode(state)
+    if mode == "general_news":
+        msg = "[huggingface] Skipping research_hf_node in general_news mode."
+        logger.info(msg)
+        return {
+            "raw_articles": [],
+            "logs": [
+                {"level": "info", "message": start_msg, "timestamp": start_ts},
+                {"level": "info", "message": msg, "timestamp": datetime.now().isoformat(timespec="milliseconds")},
+            ],
+        }
+
     interest_profile = state.get("interest_profile", {})
     hf_cfg = interest_profile.get("sources", {}).get("huggingface", {})
 
@@ -546,7 +645,19 @@ def research_rss_node(state: GraphState) -> Dict[str, Any]:
     start_msg = f"[rss] Started RSS source fetch at {start_ts}"
     logger.info(start_msg)
 
-    interest_profile = state.get("interest_profile", {})
+    mode = _get_mode(state)
+    if mode == "ai_research":
+        msg = "[rss] Skipping research_rss_node in ai_research mode."
+        logger.info(msg)
+        return {
+            "raw_articles": [],
+            "logs": [
+                {"level": "info", "message": start_msg, "timestamp": start_ts},
+                {"level": "info", "message": msg, "timestamp": datetime.now().isoformat(timespec="milliseconds")},
+            ],
+        }
+
+    interest_profile = _get_profile_from_state(state)
     rss_cfg = interest_profile.get("sources", {}).get("rss", {})
 
     if rss_cfg.get("enabled", True) is False:
@@ -561,6 +672,7 @@ def research_rss_node(state: GraphState) -> Dict[str, Any]:
         }
 
     feed_specs = rss_cfg.get("feeds", []) or []
+    feed_urls = rss_cfg.get("feed_urls", []) or []
     if not feed_specs:
         feed_specs = [
             {
@@ -580,7 +692,10 @@ def research_rss_node(state: GraphState) -> Dict[str, Any]:
         ]
 
     logger.debug(f"RSS feed count -> {len(feed_specs)}")
-    result = _fetch_rss_safe(feed_specs=feed_specs)
+    if feed_urls:
+        result = fetch_rss_feeds(feed_urls=feed_urls, limit_per_feed=int(rss_cfg.get("limit_per_feed", 5)))
+    else:
+        result = _fetch_rss_safe(feed_specs=feed_specs)
     rss_articles = list(result.get("raw_articles", []))
 
     normalized_articles = []
@@ -700,17 +815,29 @@ def deduplicate_node(state: GraphState) -> Dict[str, Any]:
 
     db = DatabaseManager()
     sent_article_ids_set = set(db.get_sent_ids())
+    interest_profile = state.get("interest_profile", {})
+    allowed_domains = _normalize_allowed_domains(interest_profile.get("trusted_domains", []))
 
     raw_articles = state.get("raw_articles", [])
     unique_articles = []
     skipped_count = 0
+    blocked_untrusted_count = 0
 
     for article in raw_articles:
         url = article.get("url", "")
         if not url or url in sent_article_ids_set:
             skipped_count += 1
             continue
+
+        if not _is_url_allowed(url, allowed_domains):
+            blocked_untrusted_count += 1
+            continue
+
         unique_articles.append(article)
+
+    trust_suffix = ""
+    if allowed_domains:
+        trust_suffix = f" blocked {blocked_untrusted_count} untrusted-domain items;"
 
     log_entry = {
         "level": "info",
@@ -718,6 +845,7 @@ def deduplicate_node(state: GraphState) -> Dict[str, Any]:
             "[deduplicate] "
             f"Loaded {len(sent_article_ids_set)} sent URLs; "
             f"filtered {skipped_count} duplicates; "
+            f"{trust_suffix} "
             f"kept {len(unique_articles)} unique articles."
         ),
     }
@@ -751,7 +879,8 @@ def filter_node(state: GraphState) -> Dict[str, Any]:
     logger.info("=" * 60)
 
     unique_articles = state.get("unique_articles", [])
-    interest_profile = state.get("interest_profile", {})
+    interest_profile = _get_profile_from_state(state)
+    mode = _get_mode(state)
     profile_text = _profile_to_text(interest_profile)
 
     if not unique_articles:
@@ -778,21 +907,37 @@ def filter_node(state: GraphState) -> Dict[str, Any]:
             unique_articles=unique_articles,
         )
 
-        threshold = 0.45
+        threshold = 0.30 if mode == "general_news" else 0.45
         max_filtered_articles = int(interest_profile.get("max_filtered_articles", 6))
         filtered_articles = _select_articles_for_newsletter(
             scored_articles=scored_articles,
             interest_profile=interest_profile,
             threshold=threshold,
-            diversity_threshold=0.40,
+            diversity_threshold=0.25 if mode == "general_news" else 0.40,
             max_filtered_articles=max_filtered_articles,
         )
 
+        if mode == "general_news" and not filtered_articles:
+            trusted_domains = _get_trusted_domains(state)
+            trusted_top = [
+                article
+                for article in scored_articles
+                if _has_verified_url(article)
+                and _is_url_allowed(str(article.get("url", "")), trusted_domains)
+            ]
+            trusted_top.sort(key=lambda article: float(article.get("relevance_score", 0.0)), reverse=True)
+            filtered_articles = trusted_top[:max_filtered_articles]
+            filtered_articles = _prune_by_similarity_with_source_preference(
+                filtered_articles,
+                similarity_threshold=0.9,
+            )
+
+        diversity_floor = 0.25 if mode == "general_news" else 0.40
         msg = (
             "[filter] "
             f"Ranked {len(scored_articles)} articles; "
             f"kept {len(filtered_articles)} with score >= {threshold} "
-            f"(diversity floor=0.4, cap={max_filtered_articles}) "
+            f"(diversity floor={diversity_floor}, cap={max_filtered_articles}) "
             "and verified URLs only."
         )
         logger.info(msg)
@@ -831,6 +976,7 @@ def fallback_search_node(state: GraphState) -> Dict[str, Any]:
 
     unique_articles = state.get("unique_articles", [])
     interest_profile = state.get("interest_profile", {})
+    allowed_domains = _normalize_allowed_domains(interest_profile.get("trusted_domains", []))
 
     if unique_articles:
         try:
@@ -876,8 +1022,12 @@ def fallback_search_node(state: GraphState) -> Dict[str, Any]:
     if buffer_articles:
         current_urls = {article.get("url", "") for article in current_filtered}
         appended = 0
+        blocked_untrusted = 0
         for article in buffer_articles:
             article_url = article.get("url", "")
+            if not _is_url_allowed(article_url, allowed_domains):
+                blocked_untrusted += 1
+                continue
             if article_url and article_url not in current_urls:
                 current_filtered.append(article)
                 current_urls.add(article_url)
@@ -888,6 +1038,7 @@ def fallback_search_node(state: GraphState) -> Dict[str, Any]:
         msg = (
             "[fallback] "
             f"Needed {needed} items, added {appended} fallback articles, "
+            f"blocked {blocked_untrusted} untrusted fallback items, "
             f"new filtered count: {len(current_filtered)}."
         )
     else:
