@@ -14,7 +14,7 @@ DATA_DIR = Path(os.getenv("NEWSLETTER_DATA_DIR", "data"))
 
 
 def ensure_data_dir() -> Path:
-    """Ensure /data is available at startup and log its status."""
+    """Ensure data directory is available at startup and log its status."""
     try:
         DATA_DIR.mkdir(parents=True, exist_ok=True)
         logger.info(f"Persistent data directory ready: {DATA_DIR}")

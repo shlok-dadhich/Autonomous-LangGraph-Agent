@@ -70,17 +70,15 @@ Also commonly needed:
 - `TELEGRAM_CHAT_ID`
 - `GROQ_MODEL` (optional)
 - `NEWSLETTER_TIMEZONE` (optional; default `UTC`)
-- `NEWSLETTER_DATA_DIR` (optional; default `/data`)
+- `NEWSLETTER_DATA_DIR` (optional; default `data/`)
 
-### Local Windows Tip
+### Local Windows/GitHub Actions Tip
 
-For local runs on Windows, set:
+By default, SQLite files are stored in `./data/` (relative path), which works on all environments including GitHub Actions. You can override if needed:
 
 ```env
 NEWSLETTER_DATA_DIR=./data
 ```
-
-This keeps SQLite files in the project folder instead of `/data`.
 
 ## Quick Start
 
