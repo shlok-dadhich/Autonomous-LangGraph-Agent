@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write # Allows GitHub to commit the database back to the repo
 
+concurrency:
+  group: autonomous-agent-main
+  cancel-in-progress: false
+
 jobs:
   run-agent:
     runs-on: ubuntu-latest
@@ -38,7 +42,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           # Runs the main script. If it fails, the workflow stops here.
-          python -c "from main import run_pipeline_once; run_pipeline_once()"
+          python main.py
 
       - name: Save Persistent Database Memory (Git Auto-Commit)
         run: |
@@ -51,7 +55,8 @@ jobs:
           # Commit/push only when tracked content changed.
           if ! git diff --cached --quiet; then
             git commit -m "chore: update agent history.db [skip ci]"
-            git push
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin HEAD:"${GITHUB_REF_NAME}"
           else
             echo "No database changes to commit"
           fi
