@@ -10,7 +10,7 @@ from typing import Generator, Iterable, List, Optional, Set
 from loguru import logger
 
 
-DATA_DIR = Path(os.getenv("NEWSLETTER_DATA_DIR", "/data"))
+DATA_DIR = Path(os.getenv("NEWSLETTER_DATA_DIR", "data"))
 
 
 def ensure_data_dir() -> Path:
