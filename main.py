@@ -1,26 +1,21 @@
-"""Persistent entrypoint for the autonomous newsletter worker."""
+"""Entrypoint for the autonomous newsletter agent (GitHub Actions)."""
 
 from __future__ import annotations
 
 import json
 import os
-import signal
 import sqlite3
 import sys
 import time
 import traceback
 from datetime import datetime
 from pathlib import Path
-from typing import Any
 
 from dotenv import load_dotenv
 from loguru import logger
 
 from src.core.database import DatabaseManager, ensure_data_dir, run_monthly_checkpoint_housekeeping
-from src.core.scheduler import WorkerScheduler
 from src.services.telegram_bot import AlertService
-
-_ACTIVE_SCHEDULER: WorkerScheduler | None = None
 
 
 def setup_logging() -> None:
@@ -275,53 +270,23 @@ def run_system_check() -> None:
     system_check()
 
 
-def _shutdown_handler(signum: int, _frame: Any) -> None:
-    global _ACTIVE_SCHEDULER
-
-    signal_name = signal.Signals(signum).name if signum in [s.value for s in signal.Signals] else str(signum)
-    logger.warning(f"Received {signal_name}. Initiating graceful shutdown...")
-
-    if _ACTIVE_SCHEDULER is not None:
-        _ACTIVE_SCHEDULER.shutdown(wait=True)
-
-
-def register_signal_handlers() -> None:
-    signal.signal(signal.SIGINT, _shutdown_handler)
-    if hasattr(signal, "SIGTERM"):
-        signal.signal(signal.SIGTERM, _shutdown_handler)
-
-
 def main() -> int:
-    """Start persistent newsletter worker."""
-    global _ACTIVE_SCHEDULER
-
+    """Run one newsletter pipeline cycle (GitHub Actions entrypoint)."""
     try:
         setup_logging()
         system_check()
 
-        register_signal_handlers()
-        timezone = os.getenv("NEWSLETTER_TIMEZONE", "UTC")
-        schedules_path = os.getenv("NEWSLETTER_SCHEDULES_PATH", "config/schedules.json")
-        job_schedules = load_schedules(schedules_path)
-        _ACTIVE_SCHEDULER = WorkerScheduler(
-            job_func=run_pipeline_once,
-            housekeeping_func=run_monthly_housekeeping,
-            timezone=timezone,
-            job_schedules=job_schedules,
-        )
-
-        logger.info("Starting persistent scheduler loop...")
-        _ACTIVE_SCHEDULER.start()
+        logger.info("Running pipeline once (GitHub Actions mode)...")
+        run_pipeline_once()
+        
+        logger.success("Pipeline completed successfully. Exiting.")
         return 0
 
     except (EnvironmentError, FileNotFoundError, json.JSONDecodeError) as exc:
         logger.error(f"Startup check failed: {type(exc).__name__}: {str(exc)}")
         return 1
-    except KeyboardInterrupt:
-        logger.warning("Worker interrupted by keyboard signal.")
-        return 0
     except Exception as exc:
-        logger.error(f"Fatal worker failure: {type(exc).__name__}: {str(exc)}")
+        logger.error(f"Pipeline execution failed: {type(exc).__name__}: {str(exc)}")
         return 1
 
 
