@@ -25,6 +25,9 @@ logs/
 # Local databases and checkpoints
 # Keep runtime state out of GitHub (history + checkpoints are generated at runtime).
 data/
+!data/
+data/*
+!data/history.db
 *.db
 *.sqlite
 *.sqlite3
