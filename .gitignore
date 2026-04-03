@@ -27,12 +27,12 @@ logs/
 data/
 !data/
 data/*
-!data/history.db
 *.db
 *.sqlite
 *.sqlite3
 *.db-shm
 *.db-wal
+!data/history.db
 
 # OS/editor noise
 .DS_Store

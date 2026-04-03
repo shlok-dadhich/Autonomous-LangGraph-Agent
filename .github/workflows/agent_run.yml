@@ -46,7 +46,7 @@ jobs:
           git config --global user.email "actions@github.com"
           # Add history.db only if it exists (first run may not create it).
           if [ -f data/history.db ]; then
-            git add data/history.db
+            git add -f data/history.db
           fi
           # Commit/push only when tracked content changed.
           if ! git diff --cached --quiet; then
