@@ -105,11 +105,20 @@ The scheduler starts and waits for the weekly run (Monday 08:00 in configured ti
 - Monthly housekeeping: Day 1 at 00:00 (checkpoint cleanup).
 - Signal handlers support graceful shutdown.
 
-## Deployment (Fly.io)
+## Deployment (GitHub Actions)
+Serverless Automation: Runs on GitHub-hosted runners (Ubuntu-latest).
 
-- Runtime config is in `fly.toml`.
-- Secrets setup guide is in `FLY_SECRETS.md`.
-- Build uses `Dockerfile` and preloads the sentence-transformer model.
+Zero-Cost Infrastructure: 100% free automation using GitHub's free tier (No credit card required).
+
+Persistent Memory: Uses an automated Git Commit & Push workflow to sync data/history.db back to the repository after each run.
+
+Triggering:
+
+Automated: Scheduled via Cron (e.g., Monday 08:00 UTC).
+
+Manual: Triggerable via the Actions tab using workflow_dispatch.
+
+Secrets: Managed securely via GitHub Repository Secrets (Settings -> Secrets -> Actions).
 
 ## Data and Persistence
 
