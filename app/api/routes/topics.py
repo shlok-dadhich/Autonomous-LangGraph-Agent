@@ -1,5 +1,11 @@
-"""Topics API routes."""
+"""Topics routes."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+from fastapi import APIRouter
+
+router = APIRouter()
+
+@router.get("")
+def list_topics():
+    return ["AI Agents", "LLM", "RAG", "Multimodal", "Safety"]
