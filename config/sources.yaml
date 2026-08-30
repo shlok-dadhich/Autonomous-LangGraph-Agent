@@ -1,30 +1,143 @@
-# Source catalog — enabled, rate limits, trusted domains
+# Source catalog — complete per plan.md §4
+# P0: keep enabled true. P1/P2: disabled by default (enable when you have keys / need).
+# Every source is independently disableable and swappable via SourceConnector registry.
+
+# --- P0: Primary ---
 sources:
   arxiv:
     enabled: true
-    categories: [cs.AI, cs.LG]
+    categories: [cs.AI, cs.LG, cs.CL, cs.CV, cs.NE, stat.ML]
     days_back: 7
     max_results: 20
+  openalex:
+    enabled: true
+    max_results: 10
+    email: ""  # optional: your email for polite pool (https://docs.openalex.org/how-to-use-the-api/rate-limits)
+  semantic_scholar:
+    enabled: true
+    max_results: 10
+  crossref:
+    enabled: true
+    max_results: 10
+  huggingface:
+    enabled: true
+    limit: 5
+  github:
+    enabled: true
+    max_results: 10
+    # uses GITHUB_TOKEN if set (higher rate limit)
+  # --- P0: Official AI Labs (RSS/Atom where available; else HTML) ---
+  official_labs:
+    enabled: true
+    max_results: 10
+    feeds:
+      - {name: openai_blog, url: https://openai.com/blog/rss.xml, source: openai-blog, parser: rss, limit: 5}
+      - {name: anthropic_news, url: https://www.anthropic.com/news, source: anthropic-newsroom, parser: html, limit: 5}
+      - {name: google_deepmind, url: https://deepmind.google/blog/rss.xml, source: deepmind-blog, parser: rss, limit: 5}
+      - {name: google_research, url: https://research.google/blog/rss/, source: google-research-blog, parser: rss, limit: 5}
+      - {name: meta_ai, url: https://ai.meta.com/blog/rss/, source: meta-ai-blog, parser: rss, limit: 5}
+      - {name: nvidia_blog, url: https://blogs.nvidia.com/feed/, source: nvidia-blog, parser: rss, limit: 5}
+      - {name: microsoft_research, url: https://www.microsoft.com/en-us/research/feed/, source: microsoft-research-blog, parser: rss, limit: 5}
+      - {name: mistral_ai, url: https://mistral.ai/news/rss/, source: mistral-blog, parser: rss, limit: 5}
+      - {name: cohere_blog, url: https://cohere.com/blog/rss.xml, source: cohere-blog, parser: rss, limit: 5}
+      - {name: xai_blog, url: https://x.ai/blog/rss.xml, source: xai-blog, parser: rss, limit: 5}
+  # --- P0: Technical blogs + News/web ---
+  rss:
+    enabled: true
+    feeds:
+      - {name: huggingface_blog, url: https://huggingface.co/blog/feed.xml, source: huggingface-blog, parser: rss, limit: 5}
   tavily:
     enabled: true
     max_results: 10
+    trusted_domains: []  # fill to restrict general_news mode, e.g. [reuters.com, apnews.com]
+  news_api:
+    enabled: false  # alternative to Tavily when you have a news provider
+    max_results: 10
+
+  # --- P1: Research graph already via openalex/semantic/crossref above ---
+
+  # --- P1: Standards/Regulation ---
+  regulation:
+    enabled: false  # set true when you want policy sensitivity (no key needed)
+    sources:
+      - {name: nist_ai, url: https://www.nist.gov/blogs/artificial-intelligence/feed, source: nist-ai, parser: rss, limit: 5}
+      - {name: eu_ai_office, url: https://digital-strategy.ec.europa.eu/en/policies/regulatory-framework-ai/rss, source: eu-ai-office, parser: rss, limit: 5}
+
+  # --- P1: Security (CVE/NVD, CISA, OWASP) ---
+  security:
+    enabled: false
+    sources:
+      - {name: nvd, url: "https://services.nvd.nist.gov/rest/json/cves/2.0?resultsPerPage=10", source: nvd, parser: json, limit: 10}
+      - {name: cisa_kev, url: "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json", source: cisa-kev, parser: json, limit: 10}
+      - {name: owasp, url: https://owasp.org/feed.xml, source: owasp-blog, parser: rss, limit: 5}
+
+  # --- P1: Benchmarks ---
+  benchmarks:
+    enabled: false
+    sources:
+      - {name: hf_leaderboards, url: https://huggingface.co/api/leaderboards, source: hf-leaderboards, parser: json, limit: 10}
+
+  # --- P1: Startups/Products ---
+  startups:
+    enabled: false
+    sources:
+      - {name: product_hunt, url: https://api.producthunt.com/v2/api/graphql, source: product-hunt, parser: api, limit: 10}
+      - {name: changelog_hunt, url: https://changelog.com/feed, source: changelog, parser: rss, limit: 5}
+
+  # --- P1: Developer communities ---
   hackernews:
     enabled: true
     max_results: 20
     min_score: 50
-  huggingface:
+  reddit:
     enabled: true
-    limit: 5
-  rss:
-    enabled: true
-    feeds:
-      - name: anthropic_news
-        url: https://www.anthropic.com/news
-        source: anthropic-newsroom
-        parser: html
-        limit: 5
-      - name: huggingface_blog
-        url: https://huggingface.co/blog/feed.xml
-        source: huggingface-blog
-        parser: rss
-        limit: 5
+    max_results: 10
+    subreddits: [MachineLearning, LocalLLaMA, artificial]
+  lobsters:
+    enabled: false
+    max_results: 10
+
+  # --- P1: Video/Audio (secondary evidence) ---
+  youtube:
+    enabled: false
+    max_results: 10
+    channels:
+      - {name: openai_channel, id: UCXZCpDAgsIuN8VDz3LEhGLQ, source: youtube-openai}
+      - {name: deepmind_channel, id: UC5IR5W48N0u9F2qEh6ftH2w, source: youtube-deepmind}
+  podcasts:
+    enabled: false
+    max_results: 10
+
+  # --- P1: Jobs (hiring as signal) ---
+  jobs:
+    enabled: false
+    max_results: 10
+    sources:
+      - {name: greenhouse_openai, url: "https://boards-api.greenhouse.io/v1/boards/openai/jobs", source: greenhouse, parser: json, limit: 10}
+
+  # --- P2: Patents ---
+  patents:
+    enabled: false
+    max_results: 10
+    sources:
+      - {name: uspto, url: "https://api.uspto.gov/patents/v1/search", source: uspto, parser: api, limit: 10}
+
+  # --- P2: Funding ---
+  funding:
+    enabled: false
+    max_results: 10
+    sources:
+      - {name: crunchbase, url: https://api.crunchbase.com/v3.1/organizations, source: crunchbase, parser: api, limit: 10}
+
+  # --- P2: Open datasets / Common Crawl ---
+  open_datasets:
+    enabled: false
+    max_results: 10
+    sources:
+      - {name: common_crawl, url: https://commoncrawl.org/blog, source: common-crawl-blog, parser: rss, limit: 5}
+
+  # --- P2: Local/Regional / Multilingual ---
+  local:
+    enabled: false
+    max_results: 10
+    feeds: []
