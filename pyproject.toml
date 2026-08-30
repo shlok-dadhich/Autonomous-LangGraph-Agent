@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "autonomous-langgraph-agent"
+version = "0.1.0"
+description = "Personal Intelligence Platform — LangGraph agent that discovers, verifies, clusters, ranks, and delivers information."
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Autonomous LangGraph Agent" }]
+dependencies = [
+    "langgraph>=0.2.39",
+    "langgraph-checkpoint-sqlite>=2.0.8",
+    "langchain-core>=0.3.15",
+    "loguru>=0.7.2",
+    "python-dotenv>=1.0.1",
+    "feedparser>=6.0.11",
+    "tavily-python>=0.5.0",
+    "requests>=2.32.3",
+    "sentence-transformers>=3.2.1",
+    "groq>=0.11.0",
+    "jinja2>=3.1.4",
+    "apscheduler>=3.10.4",
+    "pydantic>=2.9.2",
+    "pydantic-settings>=2.6.1",
+    "sqlalchemy>=2.0.34",
+    "alembic>=1.13.2",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "httpx>=0.27.2",
+    "typer>=0.13.0",
+    "psycopg[binary]>=3.2.1; sys_platform != 'win32'",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.2",
+    "pytest-asyncio>=0.24.0",
+    "pytest-cov>=6.0.0",
+    "httpx>=0.27.2",
+    "ruff>=0.8.4",
+    "mypy>=1.14.0",
+    "pre-commit>=4.0.1",
+    "types-requests>=2.32.0.20241016",
+    "types-feedparser>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --strict-config"
+pythonpath = ["."]
+markers = [
+    "slow: marks tests as slow",
+    "integration: integration tests",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+extend-exclude = ["data", "logs", ".venv", "venv", "alembic"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]  # line length handled by formatter
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+exclude = ["alembic", "data", "logs"]
+
+[[tool.mypy.overrides]]
+module = [
+    "feedparser.*",
+    "tavily.*",
+    "sentence_transformers.*",
+    "groq.*",
+    "apscheduler.*",
+    "loguru.*",
+]
+ignore_missing_imports = true
+
+[tool.coverage.run]
+source = ["src", "app"]
+omit = ["tests/*", "alembic/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
