@@ -1,1 +1,30 @@
-{% extends "base.html" %}{% block content %}<h1>Your Intelligence Brief</h1><!-- TODO Phase 5: Appendix C structure -->{% endblock %}
+{% extends "base.html" %}{% block content %}
+<h1>Your AI Intelligence Brief — {{ current_date }}</h1>
+{% for article in articles %}
+<div style="margin:16px 0;padding:12px;border:1px solid #eee;border-radius:8px;">
+  <h3><a href="{{ article.tracked_url or article.url }}">{{ article.title }}</a></h3>
+  <p style="color:#555;font-size:13px;">{{ article.source }} • Confidence: {{ article.confidence or 'Medium' }}</p>
+  <p>{{ article.summary or article.description }}</p>
+  {% if article.evidence %}
+  <p style="font-size:12px;color:#666;">Evidence: {{ article.evidence|length }} sources • <a href="{{ article.url }}">Read</a></p>
+  {% endif %}
+  <p style="font-size:12px;">
+    <a href="{{ feedback_base }}/save?story={{ article.document_id }}">Save</a> •
+    <a href="{{ feedback_base }}/more?topic={{ article.topic }}">More like this</a> •
+    <a href="{{ feedback_base }}/less?topic={{ article.topic }}">Less like this</a> •
+    <a href="{{ feedback_base }}/mute?topic={{ article.topic }}">Mute topic</a> •
+    <a href="{{ feedback_base }}/follow?entity={{ article.entity }}">Follow</a> •
+    <a href="{{ feedback_base }}/ask?story={{ article.document_id }}">Ask about this</a>
+  </p>
+</div>
+{% endfor %}
+{% if trend_watch %}
+<div style="margin-top:24px;padding:12px;background:#f9f9f9;border-radius:8px;">
+  <h4>Trend Watch</h4><p>{{ trend_watch }}</p>
+</div>
+{% endif %}
+<footer style="margin-top:24px;font-size:12px;color:#888;">
+  <p>Your reading signal: {{ reading_signal or 'Adjust interests' }} • <a href="{{ feedback_base }}/preferences">Adjust</a></p>
+  <p><a href="{{ feedback_url }}">Feedback</a> • <a href="{{ feedback_base }}/digest/{{ digest_id }}">View on web</a></p>
+</footer>
+{% endblock %}
