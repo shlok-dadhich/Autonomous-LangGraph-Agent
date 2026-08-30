@@ -1,5 +1,9 @@
-"""Digest generation node."""
+"""Digest generation node — placeholder."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+from loguru import logger
+
+def generate_digest_node(state: dict) -> dict:
+    logger.info("[digest] placeholder")
+    return {"logs": [{"level": "info", "message": "[digest] placeholder"}]}
