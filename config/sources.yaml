@@ -1,0 +1,30 @@
+# Source catalog — enabled, rate limits, trusted domains
+sources:
+  arxiv:
+    enabled: true
+    categories: [cs.AI, cs.LG]
+    days_back: 7
+    max_results: 20
+  tavily:
+    enabled: true
+    max_results: 10
+  hackernews:
+    enabled: true
+    max_results: 20
+    min_score: 50
+  huggingface:
+    enabled: true
+    limit: 5
+  rss:
+    enabled: true
+    feeds:
+      - name: anthropic_news
+        url: https://www.anthropic.com/news
+        source: anthropic-newsroom
+        parser: html
+        limit: 5
+      - name: huggingface_blog
+        url: https://huggingface.co/blog/feed.xml
+        source: huggingface-blog
+        parser: rss
+        limit: 5
