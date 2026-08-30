@@ -1,5 +1,9 @@
-"""Acquisition nodes — wraps SourceConnectors."""
+"""Acquisition nodes — thin wrappers over connectors."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+from loguru import logger
+
+def acquisition_node(state: dict) -> dict:
+    logger.info("[acquisition] placeholder — use connectors registry")
+    return {"logs": [{"level": "info", "message": "[acquisition] placeholder"}]}

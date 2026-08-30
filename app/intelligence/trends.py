@@ -1,5 +1,5 @@
-"""Trend detection."""
+"""Trend detection — stub Phase 6."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+# TODO Phase 6: velocity calc

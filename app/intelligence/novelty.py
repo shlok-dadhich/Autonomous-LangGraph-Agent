@@ -1,5 +1,6 @@
-"""Novelty detection."""
+"""Novelty detection — new vs repeat."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+def is_novel(content_hash: str, seen_hashes: set[str]) -> bool:
+    return content_hash not in seen_hashes

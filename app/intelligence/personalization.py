@@ -1,5 +1,5 @@
-"""Personalization — long/recent/session."""
+"""Personalization — long/recent/session with decay."""
 
 from __future__ import annotations
 
-# TODO: implement in phased roadmap (see plan.md)
+# TODO Phase 4
