@@ -14,7 +14,17 @@ def create_app() -> FastAPI:
         return {"status": "ok", "phase": "5-product"}
 
     # Wire routers (lazy import to avoid circular)
-    from app.api.routes import admin, ask, digests, entities, feedback, search, stories, topics, users
+    from app.api.routes import (
+        admin,
+        ask,
+        digests,
+        entities,
+        feedback,
+        search,
+        stories,
+        topics,
+        users,
+    )
 
     app.include_router(digests.router, prefix="/digests", tags=["digests"])
     app.include_router(stories.router, prefix="/stories", tags=["stories"])

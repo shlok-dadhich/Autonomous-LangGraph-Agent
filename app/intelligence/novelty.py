@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-import re
-
 
 def novelty_score(content_hash: str, seen_hashes: set[str], claim_overlap: float = 0.0) -> float:
     """0=repost, 1=novel."""

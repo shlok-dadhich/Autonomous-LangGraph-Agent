@@ -5,6 +5,7 @@ from __future__ import annotations
 from app.connectors import register
 from app.connectors.base import RawDocument, SourceQuery
 
+
 @register("huggingface")
 class HFConnector:
     async def fetch(self, query: SourceQuery) -> list[RawDocument]:

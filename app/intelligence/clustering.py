@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import re
 import uuid
-from collections import defaultdict
 from dataclasses import dataclass, field
 
 from app.domain.documents.identity import content_hash, title_hash

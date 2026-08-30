@@ -32,9 +32,9 @@ def health(db: Session = Depends(get_db)):
 
 @router.get("/ranking-explain")
 def ranking_explain(doc_id: str, db: Session = Depends(get_db)):
-    from app.storage.models import Document
-
     import uuid
+
+    from app.storage.models import Document
 
     row = db.query(Document).filter_by(id=uuid.UUID(doc_id)).first()
     if not row:

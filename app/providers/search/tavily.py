@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import os
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from app.connectors.base import RawDocument
 from app.core.config import get_settings
@@ -32,7 +32,7 @@ class TavilySearchProvider:
                     url=r.get("url", "").strip(),
                     description=(r.get("content", "") or r.get("snippet", ""))[:500].strip(),
                     source="tavily",
-                    published_at=datetime.now(timezone.utc).isoformat(),
+                    published_at=datetime.now(UTC).isoformat(),
                     metadata={"raw": r},
                 )
             )

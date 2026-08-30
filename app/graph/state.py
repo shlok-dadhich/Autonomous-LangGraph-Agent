@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from typing import Annotated, List, Optional, TypedDict
 import operator
+from typing import Annotated, TypedDict
 
 
 class GraphState(TypedDict, total=False):
@@ -11,16 +11,16 @@ class GraphState(TypedDict, total=False):
     interest_profile: dict
     profile: dict
     mode: str
-    trusted_domains: List[str]
+    trusted_domains: list[str]
     raw_articles: Annotated[list, operator.add]
     unique_articles: list
     filtered_articles: list
     email_draft_content: list
-    email_html_content: Optional[str]
-    sent_article_ids: List[str]
-    thread_id: Optional[str]
+    email_html_content: str | None
+    sent_article_ids: list[str]
+    thread_id: str | None
     logs: Annotated[list, operator.add]
-    error: Optional[str]
+    error: str | None
 
     # intelligence (Phase 2+)
     documents: list  # normalized Document dicts with canonical_url, content_hash, etc.

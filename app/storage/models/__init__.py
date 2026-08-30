@@ -9,7 +9,17 @@ from __future__ import annotations
 import uuid
 from datetime import datetime
 
-from sqlalchemy import JSON, DateTime, Float, ForeignKey, Integer, String, Text, UniqueConstraint, Index
+from sqlalchemy import (
+    JSON,
+    DateTime,
+    Float,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.storage.db import Base
@@ -28,8 +38,8 @@ class User(Base, UUIDMixin, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(default=True)
     meta: Mapped[dict] = mapped_column("metadata", JSON, default=dict)
 
-    preferences: Mapped["UserPreference"] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
-    interactions: Mapped[list["UserInteraction"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    preferences: Mapped[UserPreference] = relationship(back_populates="user", cascade="all, delete-orphan", uselist=False)
+    interactions: Mapped[list[UserInteraction]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 
 class UserPreference(Base, UUIDMixin, TimestampMixin):

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from loguru import logger
+
 from app.intelligence.source_quality import score_source
 
 

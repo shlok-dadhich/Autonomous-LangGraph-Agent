@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from loguru import logger
+
 from app.intelligence.events import extract_events
+
 
 def detect_events_node(state: dict) -> dict:
     docs = state.get("documents", [])

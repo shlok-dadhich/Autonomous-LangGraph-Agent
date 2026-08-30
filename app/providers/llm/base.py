@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Protocol, Type
+from typing import Protocol
 
 from pydantic import BaseModel
 
@@ -31,7 +31,7 @@ class LLMRequest:
     model: str
     temperature: float = 0.2
     max_tokens: int | None = None
-    schema: Type[BaseModel] | None = None  # for structured output
+    schema: type[BaseModel] | None = None  # for structured output
     extra: dict = field(default_factory=dict)
 
 

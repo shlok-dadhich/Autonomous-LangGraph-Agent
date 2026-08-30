@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from loguru import logger
+
 from app.intelligence.claims import extract_claims
-from app.intelligence.evidence import evaluate_evidence, detect_contradiction
+from app.intelligence.evidence import detect_contradiction
+
 
 def extract_claims_node(state: dict) -> dict:
     docs = state.get("documents", [])

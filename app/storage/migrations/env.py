@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import sys
-from pathlib import Path
 from logging.config import fileConfig
+from pathlib import Path
 
 from alembic import context
 from sqlalchemy import pool
@@ -12,11 +12,10 @@ from sqlalchemy import pool
 # Ensure project root on sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
 
-from app.core.config import get_settings  # noqa: E402
-from app.storage.db import Base  # noqa: E402
-
 # Import models so metadata is populated
 import app.storage.models  # noqa: E402,F401
+from app.core.config import get_settings  # noqa: E402
+from app.storage.db import Base  # noqa: E402
 
 config = context.config
 if config.config_file_name is not None:

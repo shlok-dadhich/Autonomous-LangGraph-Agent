@@ -33,6 +33,7 @@ def ranking_node(state: dict) -> dict:
     # Stage 2: reranker on top-50 if enabled (config)
     try:
         from pathlib import Path
+
         import yaml
 
         cfg_path = Path("config/ranking.yaml")

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from loguru import logger
 
-from app.intelligence.personalization import aggregate_profile, user_affinity_score, Interaction
+from app.intelligence.personalization import Interaction, aggregate_profile, user_affinity_score
 
 
 def personalize_node(state: dict) -> dict:

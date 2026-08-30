@@ -38,7 +38,7 @@ def seed_user_from_profile(db: Session, profile: dict[str, Any], email: str = "d
     pref.explicit_topics = topics
     pref.excluded_topics = profile.get("excluded_topics", [])
     pref.preferred_sources = list(profile.get("sources", {}).keys())
-    pref.topic_affinity = {t: 1.0 for t in topics}
+    pref.topic_affinity = dict.fromkeys(topics, 1.0)
     # store original profile for audit
     pref.meta = {"seed_profile": profile}
     db.flush()

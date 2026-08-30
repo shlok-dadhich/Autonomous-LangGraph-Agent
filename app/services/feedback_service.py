@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-import time
 import uuid
+
 from sqlalchemy.orm import Session
 
 from app.storage.models import UserInteraction

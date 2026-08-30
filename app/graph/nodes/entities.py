@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from loguru import logger
+
 from app.intelligence.entities import extract_entities
+
 
 def extract_entities_node(state: dict) -> dict:
     docs = state.get("documents", [])

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import math
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -43,8 +43,8 @@ def _freshness_score(published_at: str | None) -> float:
         # handle ISO strings
         dt = datetime.fromisoformat(published_at.replace("Z", "+00:00"))
         if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=timezone.utc)
-        age_hours = (datetime.now(timezone.utc) - dt).total_seconds() / 3600
+            dt = dt.replace(tzinfo=UTC)
+        age_hours = (datetime.now(UTC) - dt).total_seconds() / 3600
         # exponential decay half-life 72h
         return max(0.0, min(1.0, math.exp(-age_hours / 72)))
     except Exception:

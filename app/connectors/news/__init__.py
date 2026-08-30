@@ -5,6 +5,7 @@ from __future__ import annotations
 from app.connectors import register
 from app.connectors.base import RawDocument, SourceQuery
 
+
 @register("tavily")
 @register("news")
 class TavilyConnector:

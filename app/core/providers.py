@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+
 @dataclass
 class ModelGateway:
     llm_fast: str = "groq:llama-3.1-8b"

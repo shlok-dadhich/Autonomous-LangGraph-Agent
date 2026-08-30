@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from loguru import logger
+
 
 def normalize_documents_node(state: dict) -> dict:
     raw = state.get("raw_articles", [])
@@ -22,7 +23,7 @@ def normalize_documents_node(state: dict) -> dict:
             "description": str(a.get("description","")).strip(),
             "source": str(a.get("source","")).strip() or "unknown",
             "published_at": a.get("published_date") or a.get("published_at"),
-            "fetched_at": datetime.now(timezone.utc).isoformat(),
+            "fetched_at": datetime.now(UTC).isoformat(),
             "author": a.get("author"),
         })
     logger.info(f"[normalize] {len(raw)} raw -> {len(docs)} documents")

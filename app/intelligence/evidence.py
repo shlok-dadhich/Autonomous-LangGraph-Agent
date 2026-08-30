@@ -30,9 +30,7 @@ def evaluate_evidence(sources: list[str], tiers: list[str]) -> EvidenceBundle:
     # count bonus
     if count >= 4 and has_primary:
         conf = "High"
-    elif count >= 2 and score >= 0.6:
-        conf = "Medium"
-    elif count >= 1 and has_primary:
+    elif count >= 2 and score >= 0.6 or count >= 1 and has_primary:
         conf = "Medium"
     else:
         conf = "Low"

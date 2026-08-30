@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 from loguru import logger
-from app.domain.documents.identity import canonicalize_url, content_hash, title_hash, document_id
+
+from app.domain.documents.identity import canonicalize_url, content_hash, document_id, title_hash
+
 
 def resolve_identity_node(state: dict) -> dict:
     docs = state.get("documents", [])

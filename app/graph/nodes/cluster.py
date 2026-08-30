@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from loguru import logger
+
 from app.intelligence.clustering import ClusterInput, cluster_documents
 from app.intelligence.entities import extract_entities
+
 
 def cluster_documents_node(state: dict) -> dict:
     docs = state.get("documents", [])
