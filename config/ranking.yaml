@@ -1,0 +1,21 @@
+# Composite ranking weights — see plan.md Appendix B
+weights:
+  semantic_relevance: 0.22
+  freshness: 0.12
+  novelty: 0.13
+  source_quality: 0.14
+  event_importance: 0.09
+  trend_velocity: 0.10
+  user_affinity: 0.14
+  information_gain: 0.06
+penalties:
+  repetition: 0.08
+  topic_fatigue: 0.07
+  low_quality: 0.10
+  weak_evidence: 0.09
+diversity:
+  bonus: 0.05
+reranker:
+  enabled: false
+  provider: cohere
+  top_k: 50
